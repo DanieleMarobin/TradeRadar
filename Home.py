@@ -31,9 +31,13 @@ markdown=\
 #####
 2) Trade Radar:
     * Full Exploratory tool to get more information about the above trades and explore the results
+
 """
 
 st.markdown(markdown)
+
+link='Trade Radar Link: [Trade Radar](https://danielemarobin-traderadar-home.streamlit.app/Trade_Radar)'
+st.markdown(link)
 
 # Get the data
 if True:
