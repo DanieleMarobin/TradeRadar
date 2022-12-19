@@ -17,7 +17,7 @@ import streamlit as st
 import GDrive as gd
 import plotly.express as px
 
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode, JsCode, AgGridTheme
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 st.set_page_config(page_title='Trade Radar',layout="wide",initial_sidebar_state="expanded")
 
