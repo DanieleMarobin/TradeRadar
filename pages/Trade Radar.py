@@ -14,97 +14,78 @@ import pandas as pd
 
 import streamlit as st
 
-import GDrive as gd
+import functions as fu
 import plotly.express as px
 
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 st.set_page_config(page_title='Trade Radar',layout="wide",initial_sidebar_state="expanded")
 
-def dm_scaler(df, col_to_rescale, new_min=-100.0, new_max=100.0):
-    # I take the abs values because I want to have a summetric range (so that the signs will remain the same)
-    old_max=abs(df[col_to_rescale].max())
-    old_min=abs(df[col_to_rescale].min())
+# Functions
+if True:
+    def format_trade_entry(item):
+        return item.strftime("%b %d")
 
-    old_max = max(old_max, old_min)
-    old_min = -old_max
+    def format_delivery(item):
+        return item.strftime("%b %y")
 
-    to_rescale = df[col_to_rescale]
-    rescaled = ((new_max - new_min) / (old_max - old_min)) * (to_rescale - old_min) + new_min
-    return rescaled
+    def format_succ_rate(item):
+        return str(item)+"%"
 
-def format_trade_entry(item):
-    return item.strftime("%b %d")
+    def func_reset():
+        if ('df_full' in st.session_state):
+            del st.session_state['df_full']
 
-def format_delivery(item):
-    return item.strftime("%b %y")
+    def func_refresh():
+        grid_response = None
 
-def format_succ_rate(item):
-    return str(item)+"%"
+    def apply_sidebar_filters(df):
+        # First and Last Delivery
+        mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)
+        mask = mask & (pd.to_datetime(df.leg_1_delivery, dayfirst=True)<=last_delivery)
+        mask = mask & ((df.trade_category=='flat price') | ((pd.to_datetime(df.leg_2_delivery, dayfirst=True)>=first_delivery) & (pd.to_datetime(df.leg_2_delivery, dayfirst=True)<=last_delivery)))
 
-def func_reset():
-    if ('df_full' in st.session_state):
-        del st.session_state['df_full']
+        # Trade Entry and Exit
+        mask = mask & ((df.interval_days>=min_holding_days) & (df.interval_days<=max_holding_days))
+        mask = mask & ((pd.to_datetime(df.interval_start, dayfirst=True)>=trade_entry_from) & (pd.to_datetime(df.interval_start, dayfirst=True)<=trade_entry_to))
+        mask = mask & ((pd.to_datetime(df.interval_end, dayfirst=True)>=trade_exit_from) & (pd.to_datetime(df.interval_end, dayfirst=True)<=trade_exit_to))
 
-def func_refresh():
-    grid_response = None
+        # Success Rate
+        mask = mask & ((df.interval_success_rate>=min_success_rate/100.0) & (df.interval_success_rate<=max_success_rate/100.0))
 
-def apply_sidebar_filters(df):
-    # First and Last Delivery
-    mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)
-    mask = mask & (pd.to_datetime(df.leg_1_delivery, dayfirst=True)<=last_delivery)
-    mask = mask & ((df.trade_category=='flat price') | ((pd.to_datetime(df.leg_2_delivery, dayfirst=True)>=first_delivery) & (pd.to_datetime(df.leg_2_delivery, dayfirst=True)<=last_delivery)))
+        # Selected Legs
+        for sel_ticker in sel_legs:
+            mask = mask & ((df.leg_1_ticker==sel_ticker) | (df.leg_2_ticker==sel_ticker))
 
-    # Trade Entry and Exit
-    mask = mask & ((df.interval_days>=min_holding_days) & (df.interval_days<=max_holding_days))
-    mask = mask & ((pd.to_datetime(df.interval_start, dayfirst=True)>=trade_entry_from) & (pd.to_datetime(df.interval_start, dayfirst=True)<=trade_entry_to))
-    mask = mask & ((pd.to_datetime(df.interval_end, dayfirst=True)>=trade_exit_from) & (pd.to_datetime(df.interval_end, dayfirst=True)<=trade_exit_to))
+        # Selected Categories
+        if len(sel_category)>0:
+            for i, sel_ in enumerate(sel_category):
+                if i==0:
+                    temp_mask = df.trade_category==sel_
+                else:
+                    temp_mask = temp_mask | (df.trade_category==sel_)
+            mask = mask & (temp_mask)
 
-    # Success Rate
-    mask = mask & ((df.interval_success_rate>=min_success_rate/100.0) & (df.interval_success_rate<=max_success_rate/100.0))
+        # Interval Type
+        if len(sel_interval_type)>0:
+            for i, sel_ in enumerate(sel_interval_type):
+                if i==0:
+                    temp_mask = df.interval_type==sel_
+                else:
+                    temp_mask = temp_mask | (df.interval_type==sel_)
+            mask = mask & (temp_mask)
 
-    # Selected Legs
-    for sel_ticker in sel_legs:
-        mask = mask & ((df.leg_1_ticker==sel_ticker) | (df.leg_2_ticker==sel_ticker))
-
-    # Selected Categories
-    if len(sel_category)>0:
-        for i, sel_ in enumerate(sel_category):
-            if i==0:
-                temp_mask = df.trade_category==sel_
-            else:
-                temp_mask = temp_mask | (df.trade_category==sel_)
-        mask = mask & (temp_mask)
-
-    # Interval Type
-    if len(sel_interval_type)>0:
-        for i, sel_ in enumerate(sel_interval_type):
-            if i==0:
-                temp_mask = df.interval_type==sel_
-            else:
-                temp_mask = temp_mask | (df.interval_type==sel_)
-        mask = mask & (temp_mask)
-
-    return mask
+        return mask
 
 
-# Get the data
+# Declarations
 if True:
     x='interval_pnl_succ_rate_interaction'
     y='interval_sign_price_perc_interaction'
 
-    # Delete all the items in Session state (to save memory)
-    for key in st.session_state.keys():
-        if key!='df_full':
-            del st.session_state[key]
-
-    df_full=None
-    if ('df_full' in st.session_state):
-        df_full=st.session_state['df_full']
-    else:
-        st.write('Getting data from Google Drive')
-        st.session_state['df_full'] = gd.read_csv('Data/Spreadinator/exported.csv', comment=True)
-        df_full=st.session_state['df_full']
+# Get the data
+if True:
+    df_full=fu.get_data()
  
 # Create and apply the 'sidebar filters'
 if df_full is not None:
@@ -164,6 +145,9 @@ if df_full is not None:
 
 # Edit columns (and add settings that depend on the modified columns)
 if df_full is not None:
+    x='interval_pnl_succ_rate_interaction'
+    y='interval_sign_price_perc_interaction'
+
     df['id']=df.index
     df['analysis_range'] = df['analysis_range'].astype(str)
     df['last_n_years'] = df['last_n_years'].astype(str)
@@ -187,12 +171,7 @@ if df_full is not None:
     df['interval_unsuccessful_years_and_returns'] = df['interval_unsuccessful_years_and_returns'].astype(str)
     df['interval_unsuccessful_years_and_returns']=[x.replace('_','`').replace('|',',') for x  in df['interval_unsuccessful_years_and_returns']]
 
-    df['x'] = dm_scaler(df=df,col_to_rescale= x)
-    df['y'] = dm_scaler(df=df,col_to_rescale= y)
-    df['indicator'] = 100.0*np.sqrt(pow(df['x'],2)+pow(df['y'],2))/np.sqrt(20000.0)
-    
-    df=df.sort_values(by='indicator',ascending=False)
-    df['rank'] = list(range(1,len(df)+1))
+    df=fu.calculate_indicator(df,x,y)
 
     # Chart Color
     cols = list(df.columns)
@@ -211,32 +190,7 @@ if df_full is not None:
 
 # Table
 if df_full is not None:    
-    statusPanels = {'statusPanels': [
-        # { 'statusPanel': 'agTotalAndFilteredRowCountComponent', 'align': 'left' },
-        # { 'statusPanel': 'agTotalRowCountComponent', 'align': 'center' },
-        { 'statusPanel': 'agFilteredRowCountComponent', 'align': 'left' },
-        { 'statusPanel': 'agSelectedRowCountComponent', 'align': 'left' },
-        { 'statusPanel': 'agAggregationComponent', 'align': 'left' },
-        ]}
-
-    gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=rows_per_page)
-    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True,rowMultiSelectWithClick=False)
-    gb.configure_selection('multiple', use_checkbox=True)
-    gb.configure_grid_options(enableRangeSelection=True, statusBar=statusPanels)
-    gb.configure_side_bar(defaultToolPanel='test')
-
-    gb.configure_column('trade', headerCheckboxSelection = True, headerCheckboxSelectionFilteredOnly=True)
-    # gb.configure_column('analysis_range', headerCheckboxSelection = True)
-    gridOptions = gb.build()
-
-    grid_response = AgGrid(df, gridOptions=gridOptions, data_return_mode=DataReturnMode.FILTERED, update_mode=GridUpdateMode.MANUAL, columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, enable_enterprise_modules=True)
-    # grid_response = AgGrid(df.head(1000), gridOptions=gridOptions, data_return_mode=DataReturnMode.FILTERED, update_mode=GridUpdateMode.MANUAL, columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, enable_enterprise_modules=True)
-
-    # st.write(grid_response.keys())
-    # st.write('selected_rows')
-    # st.write(grid_response['selected_rows'])
-
+    grid_response = fu.aggrid_table_radar_page(df,rows_per_page=rows_per_page)
     selected_rows=grid_response['selected_rows']
     selected_df=pd.DataFrame(grid_response['selected_rows'])
 
