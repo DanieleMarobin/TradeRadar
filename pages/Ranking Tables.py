@@ -19,18 +19,12 @@ import plotly.express as px
 
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
-st.set_page_config(page_title='Trade Radar Home Page',layout="wide",initial_sidebar_state="expanded")
+st.set_page_config(page_title='Ranking Tables',layout="wide",initial_sidebar_state="expanded")
 
 markdown=\
 """
-# Trade Radar
+# Ranking Tables
 ---
-#### In this application there are 2 pages (see sidebar on the left):
-1) Ranking Tables:
-    * Simple Ranking Tables to spot highly ranked trades
-#####
-2) Trade Radar:
-    * Full Exploratory tool to get more information about the above trades and explore the results
 """
 
 st.markdown(markdown)
@@ -49,5 +43,3 @@ if True:
         st.write('Getting data from Google Drive')
         st.session_state['df_full'] = gd.read_csv('Data/Spreadinator/exported.csv', comment=True)
         df_full=st.session_state['df_full']
-
-
