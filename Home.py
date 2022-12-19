@@ -26,12 +26,23 @@ markdown=\
 # Trade Radar
 ---
 #### In this application there are 2 pages (see sidebar on the left):
+1) Ranking Tables:
+    * Simple Ranking Tables to spot highly ranked trades
+#####
+2) Trade Radar:
+    * Full Exploratory tool to get more information about the above trades and explore the results
+"""
+
+markdown_with_links=\
+"""
+# Trade Radar
+---
+#### In this application there are 2 pages (see sidebar on the left):
 1) <a href="https://danielemarobin-traderadar-home.streamlit.app/Ranking_Tables" target="_self"> Ranking Tables </a>:
     * Simple Ranking Tables to spot highly ranked trades
 #####
 2) <a href="https://danielemarobin-traderadar-home.streamlit.app/Trade_Radar" target="_self"> Trade Radar </a>:
     * Full Exploratory tool to get more information about the above trades and explore the results
-
 """
 
 st.markdown(markdown, unsafe_allow_html=True)
