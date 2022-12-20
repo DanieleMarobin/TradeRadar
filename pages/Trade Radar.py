@@ -14,7 +14,7 @@ import pandas as pd
 
 import streamlit as st
 
-import functions as fu
+import func as fu
 import plotly.express as px
 
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode

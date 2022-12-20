@@ -45,7 +45,8 @@ def dm_scaler(df, col_to_rescale, new_min=-100.0, new_max=100.0):
 def calculate_indicator(df,x,y):
     df['x'] = dm_scaler(df=df,col_to_rescale= x)
     df['y'] = dm_scaler(df=df,col_to_rescale= y)
-    df['indicator'] = 100.0*np.sqrt(pow(df['x'],2)+pow(df['y'],2))/np.sqrt(20000.0)    
+    # df['indicator'] = 100.0*np.sqrt(pow(df['x'],2)+pow(df['y'],2))/np.sqrt(20000.0)
+    df['indicator'] = (df['x']+df['y'])/2.0
     df=df.sort_values(by='indicator',ascending=False)
     df['rank'] = list(range(1,len(df)+1))    
     return df

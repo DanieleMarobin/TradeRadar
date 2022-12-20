@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 import streamlit as st
-import functions as fu
+import func as fu
 
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
