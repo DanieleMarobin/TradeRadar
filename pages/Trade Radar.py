@@ -30,7 +30,7 @@ if True:
     def func_refresh():
         grid_response = None
 
-    def apply_sidebar_filters(df):
+    def apply_filters(df):
         # First and Last Delivery
         mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)
         mask = mask & (pd.to_datetime(df.leg_1_delivery, dayfirst=True)<=last_delivery)
@@ -44,9 +44,35 @@ if True:
         # Success Rate
         mask = mask & ((df.interval_success_rate>=min_success_rate/100.0) & (df.interval_success_rate<=max_success_rate/100.0))
 
+        # Asset class
+        for sel_asset in sel_asset_classes:
+            mask = mask & ((df.asset_class_1==sel_asset) | (df.asset_class_2==sel_asset))
+
         # Selected Legs
-        for sel_ticker in sel_legs:
+        for sel_ticker in sel_tickers:
             mask = mask & ((df.leg_1_ticker==sel_ticker) | (df.leg_2_ticker==sel_ticker))
+
+        # Excluded legs        
+        for sel_ticker in excluded_tickers:
+            mask = mask & ((df.leg_1_ticker!=sel_ticker) & (df.leg_2_ticker!=sel_ticker))
+
+        # Range
+        if len(sel_ranges)>0:
+            for i, sel_ in enumerate(sel_ranges):
+                if i==0:
+                    temp_mask = df.analysis_range==sel_
+                else:
+                    temp_mask = temp_mask | (df.analysis_range==sel_)
+            mask = mask & (temp_mask)
+
+        # Range
+        if len(sel_last_n_years)>0:
+            for i, sel_ in enumerate(sel_last_n_years):
+                if i==0:
+                    temp_mask = df.last_n_years==sel_
+                else:
+                    temp_mask = temp_mask | (df.last_n_years==sel_)
+            mask = mask & (temp_mask)
 
         # Selected Categories
         if len(sel_category)>0:
@@ -84,19 +110,44 @@ if df_full is not None:
     trades_n_placeholder = st.empty()
 
     with st.sidebar.form('run'):
-        # Leg Tickers
-        opt_1=df_full['leg_1_ticker'].astype(str)
-        opt_2=df_full['leg_2_ticker'].astype(str)
+        # Asset
+        opt_1=df_full['asset_class_1'].astype(str)
+        opt_2=df_full['asset_class_2'].astype(str)
         options = list(set(list(opt_1)+list(opt_2)))
         options.sort()
         options.remove('nan')
-        sel_legs = st.multiselect( 'Filter Tickers (Max 2)', options, max_selections=2)
+        sel_asset_classes = st.multiselect('Asset Class', options)
 
         # Trade Category
         opt_1=df_full['trade_category'].astype(str)
         options = list(set(list(opt_1)))
         options.sort()
-        sel_category = st.multiselect( 'Trade Category', options)
+        sel_category = st.multiselect('Trade Category', options)
+
+        # Interval Type
+        opt_1=df_full['analysis_range']
+        options = list(set(list(opt_1)))
+        options.sort()
+        sel_ranges = st.multiselect('Range (months)', options)
+
+        # Last N Years
+        opt_1=df_full['last_n_years']
+        options = list(set(list(opt_1)))
+        options.sort()
+        sel_last_n_years = st.multiselect('Last N years', options)
+
+        st.markdown('---')
+
+        # Must contain Tickers
+        opt_1=df_full['leg_1_ticker'].astype(str)
+        opt_2=df_full['leg_2_ticker'].astype(str)
+        options = list(set(list(opt_1)+list(opt_2)))
+        options.sort()
+        options.remove('nan')
+        sel_tickers = st.multiselect( 'Must contain Tickers (Max 2)', options, max_selections=2)
+
+        # Must exclude Tickers
+        excluded_tickers = st.multiselect( 'Excluded Tickers', options)
 
         # Interval Type
         opt_1=df_full['interval_type'].astype(str)
@@ -130,7 +181,7 @@ if df_full is not None:
         # Form Submit Button
         st.form_submit_button('Apply')
 
-    mask_filters = apply_sidebar_filters(df_full)
+    mask_filters = apply_filters(df_full)
     df=df_full.loc[mask_filters]
 
 # Edit columns (and add settings that depend on the modified columns)

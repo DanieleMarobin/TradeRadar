@@ -21,6 +21,10 @@ st.set_page_config(page_title='Ranking Tables',layout="wide",initial_sidebar_sta
 
 # Functions
 if True:
+    def func_reset():
+        if ('df_full' in st.session_state):
+            del st.session_state['df_full']
+
     def apply_filters(df):
         # First and Last Delivery
         mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)
@@ -56,7 +60,7 @@ if True:
                     temp_mask = temp_mask | (df.analysis_range==sel_)
             mask = mask & (temp_mask)
 
-        # Range
+        # N years
         if len(sel_last_n_years)>0:
             for i, sel_ in enumerate(sel_last_n_years):
                 if i==0:
@@ -94,32 +98,39 @@ if True:
 if True:
     df_full=fu.get_data()
 
-
 # Filters and Settings
 if True:
-    with st.sidebar: #.form('run'):
+    st.sidebar.button('Get Latest File', on_click=func_reset)
+
+    with st.sidebar.form('run'):
         # Asset
-        loop_assets = st.multiselect('Split Tables by Asset Class', ['grains','oilseeds'], ['grains','oilseeds'])
+        opt_1=df_full['asset_class_1'].astype(str)
+        opt_2=df_full['asset_class_2'].astype(str)
+        options = list(set(list(opt_1)+list(opt_2)))
+        options.sort()
+        options.remove('nan')
+        sel_asset_classes = st.multiselect('Split Tables by Asset Class', options, ['grains','oilseeds'])
 
         # Trade Category
         opt_1=df_full['trade_category'].astype(str)
         options = list(set(list(opt_1)))
         options.sort()
-        loop_category = st.multiselect('Split Tables by Trade Category', options, ['calendar', 'inter market'])
+        sel_category = st.multiselect('Trade Category', options, ['calendar', 'inter market'])
 
         # Interval Type
         opt_1=df_full['analysis_range']
         options = list(set(list(opt_1)))
         options.sort()
-        loop_ranges = st.multiselect('Split Tables by Range (months)', options,[3,9])
+        sel_ranges = st.multiselect('Split Tables by Range (months)', options,[3,9])
 
         # Last N Years
         opt_1=df_full['last_n_years']
         options = list(set(list(opt_1)))
         options.sort()
-        loop_n_years = st.multiselect('Split Tables by Last N years', options,[15])
+        sel_last_n_years = st.multiselect('Split Tables by Last N years', options,[15])
 
         st.markdown('---')
+
         # Must contain Tickers
         opt_1=df_full['leg_1_ticker'].astype(str)
         opt_2=df_full['leg_2_ticker'].astype(str)
@@ -130,6 +141,12 @@ if True:
 
         # Must exclude Tickers
         excluded_tickers = st.multiselect( 'Excluded Tickers', options)
+
+        # Interval Type
+        opt_1=df_full['interval_type'].astype(str)
+        options = list(set(list(opt_1)))
+        options.sort()
+        sel_interval_type = st.multiselect( 'Interval Type', options)
 
         # Deliveries
         opt_1=pd.to_datetime(df_full['leg_1_delivery'], dayfirst=True)
@@ -154,15 +171,20 @@ if True:
         # Success Rate
         min_success_rate, max_success_rate = st.select_slider('Success Rate', options=range(0,101), value=(55, 100), format_func=fu.format_succ_rate)
 
+        # Form Submit Button
+        st.form_submit_button('Apply')
+
     # Rows per page
     rows_per_page = st.sidebar.number_input('Rows per Page',1,100,20,1)
 
 # Creating and Printing Tables
 if True:
-    # Not used yet
-    sel_interval_type = []
-
     # Filters    
+    loop_assets=sel_asset_classes
+    loop_category=sel_category
+    loop_ranges=sel_ranges
+    loop_n_years=sel_last_n_years
+
     sel_asset_classes = []
     sel_category = []
     sel_ranges = []
