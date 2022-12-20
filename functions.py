@@ -20,6 +20,15 @@ def get_data():
         df_full=st.session_state['df_full']
     return df_full
 
+def format_trade_entry(item):
+    return item.strftime("%b %d")
+
+def format_delivery(item):
+    return item.strftime("%b %y")
+
+def format_succ_rate(item):
+    return str(item)+"%"
+
 def dm_scaler(df, col_to_rescale, new_min=-100.0, new_max=100.0):
     # I take the abs values because I want to have a summetric range (so that the signs will remain the same)
     old_max=abs(df[col_to_rescale].max())

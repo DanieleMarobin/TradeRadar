@@ -23,15 +23,6 @@ st.set_page_config(page_title='Trade Radar',layout="wide",initial_sidebar_state=
 
 # Functions
 if True:
-    def format_trade_entry(item):
-        return item.strftime("%b %d")
-
-    def format_delivery(item):
-        return item.strftime("%b %y")
-
-    def format_succ_rate(item):
-        return str(item)+"%"
-
     def func_reset():
         if ('df_full' in st.session_state):
             del st.session_state['df_full']
@@ -77,7 +68,6 @@ if True:
 
         return mask
 
-
 # Declarations
 if True:
     x='interval_pnl_succ_rate_interaction'
@@ -120,22 +110,22 @@ if df_full is not None:
         options = list(set(list(opt_1)+list(opt_2)))
         options.remove(pd.NaT)
         options.sort()
-        first_delivery, last_delivery = st.select_slider('Delivery', options=options, value=(min(options), max(options)), format_func=format_delivery)
+        first_delivery, last_delivery = st.select_slider('Delivery', options=options, value=(min(options), max(options)), format_func=fu.format_delivery)
 
         # Trade Entry and Exit
         opt_1=pd.to_datetime(df_full['interval_start'], dayfirst=True)
         opt_2=pd.to_datetime(df_full['interval_end'], dayfirst=True)        
         options =list(pd.date_range(min(opt_1), max(opt_2)))
         
-        trade_entry_from, trade_entry_to = st.select_slider('Trade Entry', options=options, value=(options[0], options[0]+pd.DateOffset(months=1)), format_func=format_trade_entry)
-        trade_exit_from, trade_exit_to = st.select_slider('Trade Exit', options=options, value=(options[0], options[-1]), format_func=format_trade_entry)
+        trade_entry_from, trade_entry_to = st.select_slider('Trade Entry', options=options, value=(options[0], options[0]+pd.DateOffset(months=1)), format_func=fu.format_trade_entry)
+        trade_exit_from, trade_exit_to = st.select_slider('Trade Exit', options=options, value=(options[0], options[-1]), format_func=fu.format_trade_entry)
 
         # Holding period
         min_=df_full['interval_days'].min(); max_=df_full['interval_days'].max()
         min_holding_days, max_holding_days = st.select_slider('Minimum Holding (Days)',options=range(min_,max_+1),value=(7, max_))
 
         # Success Rate
-        min_success_rate, max_success_rate = st.select_slider('Success Rate', options=range(0,101), value=(55, 100), format_func=format_succ_rate)
+        min_success_rate, max_success_rate = st.select_slider('Success Rate', options=range(0,101), value=(55, 100), format_func=fu.format_succ_rate)
 
         # Form Submit Button
         st.form_submit_button('Apply')
