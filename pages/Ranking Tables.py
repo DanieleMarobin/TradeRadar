@@ -19,15 +19,6 @@ from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode
 
 st.set_page_config(page_title='Ranking Tables',layout="wide",initial_sidebar_state="expanded")
 
-markdown=\
-"""
-# Ranking Tables
----
-"""
-
-st.markdown(markdown)
-
-
 # Functions
 if True:
     def apply_filters(df):
@@ -99,26 +90,30 @@ if True:
 if True:
     df_full=fu.get_data()
 
+
 # Filters and Settings
 if True:
     with st.sidebar: #.form('run'):
+        # Asset
+        loop_assets = st.multiselect('Split Tables by Asset Class', ['grains','oilseeds'], ['grains','oilseeds'])
+
         # Trade Category
         opt_1=df_full['trade_category'].astype(str)
         options = list(set(list(opt_1)))
         options.sort()
-        loop_category = st.multiselect( 'Trade Category', options, ['calendar', 'flat price'])
+        loop_category = st.multiselect('Split Tables by Trade Category', options, ['calendar', 'inter market'])
 
         # Interval Type
         opt_1=df_full['analysis_range']
         options = list(set(list(opt_1)))
         options.sort()
-        loop_ranges = st.multiselect( 'Range (months)', options,[3,6])
+        loop_ranges = st.multiselect('Split Tables by Range (months)', options,[3,9])
 
         # Last N Years
         opt_1=df_full['last_n_years']
         options = list(set(list(opt_1)))
         options.sort()
-        loop_n_years = st.multiselect( 'Last N years', options,[15])
+        loop_n_years = st.multiselect('Split Tables by Last N years', options,[15])
 
         # Deliveries
         opt_1=pd.to_datetime(df_full['leg_1_delivery'], dayfirst=True)
@@ -143,33 +138,55 @@ if True:
         # Success Rate
         min_success_rate, max_success_rate = st.select_slider('Success Rate', options=range(0,101), value=(55, 100), format_func=fu.format_succ_rate)
 
-        # Form Submit Button
-        # st.form_submit_button('Apply')
-
     # Rows per page
-    rows_per_page = st.sidebar.number_input('Rows per Page',1,100,15,1)
+    rows_per_page = st.sidebar.number_input('Rows per Page',1,100,20,1)
 
 # Creating and Printing Tables
 if True:
-    loop_assets=['grains','oilseeds']
+    # Not used yet
+    sel_tickers = []
+    sel_interval_type = []
+
+    # Filters    
+    sel_asset_classes = []
+    sel_category = []
+    sel_ranges = []
+    sel_last_n_years = []
+    
+    if len(loop_assets)==0: loop_assets=['']
+    if len(loop_category)==0: loop_category=['']
+    if len(loop_ranges)==0: loop_ranges=['']
+    if len(loop_n_years)==0: loop_n_years=['']
+
+    n_tables = str(len(loop_assets)*len(loop_category)*len(loop_ranges)*len(loop_n_years))
+    st.markdown('# '+n_tables+' Ranking Tables')
+    st.markdown('---')
 
     for asset in loop_assets:
         for category in loop_category:
             for range in loop_ranges:
-                for n_years in loop_n_years:
-                    st.markdown('##### '+asset.title()+' '+category.title()+', '+str(range)+ ' months range, last '+str(n_years)+' Years')
-
+                for n_years in loop_n_years:                                        
                     # Filters
-                    sel_tickers = []
-                    sel_asset_classes = [asset]
-                    sel_ranges = [range] # 3,6,9
-                    sel_last_n_years = [n_years] # 10, 15, 20, 25, 30, 100
-                    sel_category = [category] # Trade Category
-                    sel_interval_type = []
+                    table_title=[]
+                    if asset!= '': 
+                        sel_asset_classes = [asset]
+                        table_title.append(asset.title())
+                    if category!= '':
+                        sel_category = [category]
+                        table_title.append(category.title())
+                    if range!= '':
+                        sel_ranges = [range]
+                        table_title.append(str(range) + ' month range')
+                    if n_years!= '':
+                        sel_last_n_years = [n_years]
+                        table_title.append(str(n_years) + ' past years')
 
-                    # Table Creation
+                    # Apply filters
                     mask = apply_filters(df_full)
                     df=df_full[mask]
+                    # table_title.insert(0,str(len(df)) + ' Trades')
+                    table_title.append('('+ str(len(df)) + ' Trades)')
+                    st.markdown('##### '+', '.join(table_title))
 
                     if (len(df)>0):
                         df=fu.calculate_indicator(df,x,y)

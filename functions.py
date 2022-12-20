@@ -1,6 +1,7 @@
 
 import streamlit as st
 import GDrive as gd
+import pandas as pd
 import numpy as np
 
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
@@ -60,7 +61,7 @@ def aggrid_table_radar_page(df,rows_per_page):
 
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=rows_per_page)
-    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True,rowMultiSelectWithClick=False)
+    gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True, rowMultiSelectWithClick=False)
     gb.configure_selection('multiple', use_checkbox=True)
     gb.configure_grid_options(enableRangeSelection=True, statusBar=statusPanels)
     gb.configure_side_bar(defaultToolPanel='test')
@@ -72,8 +73,38 @@ def aggrid_table_radar_page(df,rows_per_page):
     grid_response = AgGrid(df, gridOptions=gridOptions, data_return_mode=DataReturnMode.FILTERED, update_mode=GridUpdateMode.MANUAL, columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, enable_enterprise_modules=True)
     return grid_response
 
-
 def aggrid_table_ranking_page(df,rows_per_page):
+    # Add/Edit Columns
+    df['trade']=[x.replace('_',',') for x  in df['trade']]
+    df['trade_VaR']=[x.replace('_',',') for x  in df['trade_VaR']]
+    df['interval'] = pd.to_datetime(df['interval_start'], dayfirst=True).dt.strftime('%d %b %Y') + ' --> ' + pd.to_datetime(df['interval_end'], dayfirst=True).dt.strftime('%d %b %Y')
+    df['trade_direction'] = ['Buy' if x > 0 else 'Sell'  for x  in df['interval_strength']]
+    df['success_str'] = df['interval_success_n'].astype(str) + ' out of ' + df['seasonal_years_n'].astype(str)
+
+    # Decide which columns to show
+    visible_cols=[
+    'trade_direction',
+    'trade',
+    'interval',
+    'interval_days',
+    'success_str',
+    # 'interval_success_rate',
+    'price_percentile',
+    'interval_pnl_per_day',
+    # 'interval_pnl_succ_rate_interaction',
+    # 'interval_sign_price_perc_interaction',
+    # 'x',
+    # 'y',
+    'indicator',
+    'rank',
+    ]
+    hide_cols=list(set(df.columns)-set(visible_cols))
+
+    # Sort the columns
+    sort_cols=visible_cols
+    sort_cols.extend(hide_cols)
+    df=df[sort_cols]
+
     statusPanels = {'statusPanels': [
     { 'statusPanel': 'agFilteredRowCountComponent', 'align': 'left' },
     { 'statusPanel': 'agSelectedRowCountComponent', 'align': 'left' },
@@ -85,10 +116,13 @@ def aggrid_table_ranking_page(df,rows_per_page):
     gb.configure_default_column(groupable=True, value=True, enableRowGroup=True, aggFunc='sum', editable=True,rowMultiSelectWithClick=False)
     gb.configure_selection('multiple', use_checkbox=False)
     gb.configure_grid_options(enableRangeSelection=True, statusBar=statusPanels)
-    gb.configure_side_bar(defaultToolPanel='test')
+    gb.configure_side_bar(defaultToolPanel='test')    
+    
+       
+    # for h in hide_cols:
+    gb.configure_columns(hide_cols, hide = True)
 
-
+    # good
     gridOptions = gb.build()
-
     grid_response = AgGrid(df, gridOptions=gridOptions, data_return_mode=DataReturnMode.FILTERED, update_mode=GridUpdateMode.NO_UPDATE, columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, enable_enterprise_modules=True)
     return grid_response
