@@ -43,6 +43,10 @@ if True:
         for sel_ticker in sel_tickers:
             mask = mask & ((df.leg_1_ticker==sel_ticker) | (df.leg_2_ticker==sel_ticker))
 
+        # Excluded legs        
+        for sel_ticker in excluded_tickers:
+            mask = mask & ((df.leg_1_ticker!=sel_ticker) & (df.leg_2_ticker!=sel_ticker))
+
         # Range
         if len(sel_ranges)>0:
             for i, sel_ in enumerate(sel_ranges):
@@ -115,6 +119,18 @@ if True:
         options.sort()
         loop_n_years = st.multiselect('Split Tables by Last N years', options,[15])
 
+        st.markdown('---')
+        # Must contain Tickers
+        opt_1=df_full['leg_1_ticker'].astype(str)
+        opt_2=df_full['leg_2_ticker'].astype(str)
+        options = list(set(list(opt_1)+list(opt_2)))
+        options.sort()
+        options.remove('nan')
+        sel_tickers = st.multiselect( 'Must contain Tickers (Max 2)', options, max_selections=2)
+
+        # Must exclude Tickers
+        excluded_tickers = st.multiselect( 'Excluded Tickers', options)
+
         # Deliveries
         opt_1=pd.to_datetime(df_full['leg_1_delivery'], dayfirst=True)
         opt_2=pd.to_datetime(df_full['leg_2_delivery'], dayfirst=True)
@@ -144,7 +160,6 @@ if True:
 # Creating and Printing Tables
 if True:
     # Not used yet
-    sel_tickers = []
     sel_interval_type = []
 
     # Filters    
