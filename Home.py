@@ -10,14 +10,11 @@
 from datetime import datetime as dt
 
 import numpy as np
-import pandas as pd
 
 import streamlit as st
-
+import func as fu
 import GDrive as gd
 import plotly.express as px
-
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 st.set_page_config(page_title='Trade Radar Home Page',layout="wide",initial_sidebar_state="expanded")
 
@@ -62,5 +59,7 @@ if True:
         # st.write('Getting data from Google Drive')
         st.session_state['df_full'] = gd.read_csv('Data/Spreadinator/exported.csv', comment=True)
         df_full=st.session_state['df_full']
+
+
 
 

@@ -218,7 +218,6 @@ if df_full is not None:
     cols=list(color_scales.keys())
     cols.sort()
     chart_color_key = st.sidebar.selectbox('Chart Color',cols, cols.index('RdYlGn-diverging')) # Plotly, Jet, RdYlGn-diverging
-    color_name=chart_color_key.split('-')[0]    
     color_list=color_scales[chart_color_key]
     
 
@@ -295,9 +294,8 @@ if df_full is not None:
     # labels={x: 'Historical Performance',y: 'Current Opportunity'} # When changing the axis or legend names
     labels={}
     try:
-        fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, 
-        color_continuous_scale=color_name,
-        color_discrete_sequence=color_list)
+        # fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_name, color_discrete_sequence=color_list)
+        fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_list, color_discrete_sequence=color_list)
 
         fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
         fig.update_layout(width=1500,height=850)
