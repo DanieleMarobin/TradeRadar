@@ -1,9 +1,10 @@
 
 import streamlit as st
 import GDrive as gd
+import inspect
 import pandas as pd
 import numpy as np
-
+import plotly.express as px
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 def get_data():
@@ -127,3 +128,19 @@ def aggrid_table_ranking_page(df,rows_per_page):
     gridOptions = gb.build()
     grid_response = AgGrid(df, gridOptions=gridOptions, data_return_mode=DataReturnMode.FILTERED, update_mode=GridUpdateMode.NO_UPDATE, columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, enable_enterprise_modules=True)
     return grid_response
+
+def get_plotly_colorscales():
+    """
+    used as below
+    fig = px.scatter(df, x='x', y='y', color_continuous_scale= colorscale_dict.key, color_discrete_sequence=colorscale_dict.value)
+
+    because:
+        - 'color_continuous_scale' needs the name of the color scale
+        - 'color_discrete_sequence' needs the full list of colors
+    """    
+    colorscale_dict={}
+    colors_modules = ['carto', 'cmocean', 'cyclical','diverging', 'plotlyjs', 'qualitative', 'sequential']
+    for color_module in colors_modules:
+        colorscale_dict.update({name+'-'+color_module:body for name, body in inspect.getmembers(getattr(px.colors, color_module)) if isinstance(body, list)})
+        
+    return colorscale_dict

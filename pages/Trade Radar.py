@@ -103,7 +103,7 @@ if True:
 if True:
     df_full=fu.get_data()
  
-# Create and apply the 'sidebar filters'
+# Sidebar controls
 if df_full is not None:
     st.sidebar.button('Get Latest File', on_click=func_reset)
     chart_placeholder = st.empty()
@@ -214,9 +214,17 @@ if df_full is not None:
 
     df=fu.calculate_indicator(df,x,y)
 
-    # Chart Color
+    color_scales = fu.get_plotly_colorscales()
+    cols=list(color_scales.keys())
+    cols.sort()
+    chart_color_key = st.sidebar.selectbox('Chart Color',cols, cols.index('RdYlGn-diverging')) # Plotly, Jet, RdYlGn-diverging
+    color_name=chart_color_key.split('-')[0]    
+    color_list=color_scales[chart_color_key]
+    
+
+    # Variable Chart Color
     cols = list(df.columns)
-    chart_color = st.sidebar.selectbox('Chart Color',cols, cols.index('trade_tickers'))
+    chart_color_variable = st.sidebar.selectbox('Chart Color Variable',cols, cols.index('indicator')) # trade_tickers, indicator
 
     # Chart Bubble Size
     chart_bubble_size = st.sidebar.selectbox('Chart Bubble Size',cols, cols.index('seasonal_years_n'))
@@ -286,9 +294,15 @@ if df_full is not None:
     
     # labels={x: 'Historical Performance',y: 'Current Opportunity'} # When changing the axis or legend names
     labels={}
+    try:
+        fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, 
+        color_continuous_scale=color_name,
+        color_discrete_sequence=color_list)
 
-    fig=px.scatter(df,x='x',y='y', color=chart_color, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels)
-    fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
-    fig.update_layout(width=1500,height=850)
-
-    chart_placeholder.plotly_chart(fig)
+        fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
+        fig.update_layout(width=1500,height=850)
+        
+        chart_placeholder.plotly_chart(fig)
+    except:
+        chart_placeholder.error('Cannot pick a qualitative color scheme for Continuos Variables')
+        # st.write('Cannot pick a qualitative color scheme for Continuos Variables')
