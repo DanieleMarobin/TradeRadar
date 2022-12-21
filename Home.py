@@ -50,6 +50,12 @@ st.markdown('# ')
 st.markdown('# ')
 st.image('RankingExplanation.png', use_column_width=True)
 
+st.markdown('---')
+st.markdown('# Price Percentile Explanation')
+st.markdown('# ')
+st.image('PricePercentaile1.png', use_column_width=True)
+st.image('PricePercentaile2.png', use_column_width=True)
+
 
 # Get the data
 if True:
