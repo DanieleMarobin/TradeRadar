@@ -44,6 +44,12 @@ markdown_with_links=\
 
 st.markdown(markdown, unsafe_allow_html=True)
 
+st.markdown('---')
+st.markdown('# Ranking Explanation')
+st.markdown('# ')
+st.markdown('# ')
+st.image('RankingExplanation.png', use_column_width=True)
+
 
 # Get the data
 if True:
