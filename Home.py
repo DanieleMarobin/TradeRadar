@@ -44,17 +44,26 @@ markdown_with_links=\
 
 st.markdown(markdown, unsafe_allow_html=True)
 
-st.markdown('---')
-st.markdown('# Ranking Explanation')
-st.markdown('# ')
-st.markdown('# ')
-st.image('RankingExplanation.png', use_column_width=True)
+use_column_width=True
+column_sizes=[1,10,1]
+
 
 st.markdown('---')
+st.markdown('# Ranking Explanation')
+
+col1, col2, col3 = st.columns(column_sizes)
+with col2:
+    st.image('RankingExplanation.png', use_column_width=use_column_width)
+
+st.markdown('---')
+
 st.markdown('# Price Percentile Explanation')
 st.markdown('# ')
-st.image('PricePercentaile1.png', use_column_width=True)
-st.image('PricePercentaile2.png', use_column_width=True)
+st.markdown('# ')
+st.markdown('# ')
+col1, col2, col3 = st.columns(column_sizes)
+with col2:
+    st.image('PricePercentaile.png', use_column_width=use_column_width)
 
 
 # Get the data
