@@ -46,7 +46,9 @@ if True:
 
         # Asset class
         for sel_asset in sel_asset_classes:
-            mask = mask & ((df.asset_class_1==sel_asset) | (df.asset_class_2==sel_asset))
+            # mask = mask & ((df.asset_class_1==sel_asset) | (df.asset_class_2==sel_asset))
+            # print(df.asset_class_2.unique)            
+            mask = mask & ((df.asset_class_1==sel_asset) & (pd.isna(df.asset_class_2))) | ((df.asset_class_1==sel_asset) & (df.asset_class_2==sel_asset))
 
         # Selected Legs
         for sel_ticker in sel_tickers:
