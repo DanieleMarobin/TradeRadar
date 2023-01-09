@@ -305,4 +305,3 @@ if df_full is not None:
         chart_placeholder.plotly_chart(fig)
     except:
         chart_placeholder.error('Cannot pick a qualitative color scheme for Continuos Variables')
-        # st.write('Cannot pick a qualitative color scheme for Continuos Variables')
