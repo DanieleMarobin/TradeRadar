@@ -7,15 +7,10 @@
 # Memory issues
 # https://blog.streamlit.io/common-app-problems-resource-limits/
 
-from datetime import datetime as dt
-
-import numpy as np
 import pandas as pd
 
 import streamlit as st
 import func as fu
-
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 st.set_page_config(page_title='Ranking Tables',layout="wide",initial_sidebar_state="expanded")
 
