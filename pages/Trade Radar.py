@@ -192,8 +192,8 @@ if df_full is not None:
     y='interval_sign_price_perc_interaction'
 
     df['id']=df.index
-    df['analysis_range'] = df['analysis_range'].astype(str)
-    df['last_n_years'] = df['last_n_years'].astype(str)
+    df['analysis_range'] = df['analysis_range']
+    df['last_n_years'] = df['last_n_years']
 
     df['leg_1'] = df['leg_1'].astype(str)
     df['leg_2'] = df['leg_2'].astype(str)
@@ -295,13 +295,20 @@ if df_full is not None:
     
     # labels={x: 'Historical Performance',y: 'Current Opportunity'} # When changing the axis or legend names
     labels={}
-    try:
-        # fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_name, color_discrete_sequence=color_list)
-        fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_list, color_discrete_sequence=color_list)
 
-        fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
-        fig.update_layout(width=1500,height=850)
+    fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data, labels=labels, text=chart_labels, color_continuous_scale=color_list, color_discrete_sequence=color_list)
+
+    fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
+    fig.update_layout(width=1500,height=850)
+    
+    chart_placeholder.plotly_chart(fig)
+
+    # try:
+    #     fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_list, color_discrete_sequence=color_list)
+
+    #     fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
+    #     fig.update_layout(width=1500,height=850)
         
-        chart_placeholder.plotly_chart(fig)
-    except:
-        chart_placeholder.error('Cannot pick a qualitative color scheme for Continuos Variables')
+    #     chart_placeholder.plotly_chart(fig)
+    # except:
+    #     chart_placeholder.error('Cannot pick a qualitative color scheme for Continuos Variables')
