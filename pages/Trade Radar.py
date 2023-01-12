@@ -302,13 +302,3 @@ if df_full is not None:
     fig.update_layout(width=1500,height=850)
     
     chart_placeholder.plotly_chart(fig)
-
-    # try:
-    #     fig=px.scatter(df,x='x',y='y', color=chart_color_variable, size=chart_bubble_size, custom_data=custom_data,labels=labels, text=chart_labels, color_continuous_scale=color_list, color_discrete_sequence=color_list)
-
-    #     fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
-    #     fig.update_layout(width=1500,height=850)
-        
-    #     chart_placeholder.plotly_chart(fig)
-    # except:
-    #     chart_placeholder.error('Cannot pick a qualitative color scheme for Continuos Variables')
