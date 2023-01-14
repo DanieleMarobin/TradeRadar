@@ -119,8 +119,7 @@ def aggrid_table_ranking_page(df,rows_per_page):
     gb.configure_selection('multiple', use_checkbox=False)
     gb.configure_grid_options(enableRangeSelection=True, statusBar=statusPanels)
     gb.configure_side_bar(defaultToolPanel='test')    
-    
-       
+         
     # for h in hide_cols:
     gb.configure_columns(hide_cols, hide = True)
 
