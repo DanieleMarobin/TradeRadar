@@ -8,7 +8,6 @@
 # https://blog.streamlit.io/common-app-problems-resource-limits/
 
 import pandas as pd
-
 import streamlit as st
 import func as fu
 
@@ -154,8 +153,7 @@ if True:
         # Trade Entry and Exit
         opt_1=pd.to_datetime(df_full['interval_start'], dayfirst=True)
         opt_2=pd.to_datetime(df_full['interval_end'], dayfirst=True)        
-        options =list(pd.date_range(min(opt_1), max(opt_2)))
-        
+        options =list(pd.date_range(min(opt_1), max(opt_2)))    
         trade_entry_from, trade_entry_to = st.select_slider('Trade Entry', options=options, value=(options[0], options[0]+pd.DateOffset(months=1)), format_func=fu.format_trade_entry)
         trade_exit_from, trade_exit_to = st.select_slider('Trade Exit', options=options, value=(options[0], options[-1]), format_func=fu.format_trade_entry)
 
