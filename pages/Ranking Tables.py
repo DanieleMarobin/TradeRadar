@@ -19,6 +19,8 @@ if True:
         if ('df_full' in st.session_state):
             del st.session_state['df_full']
 
+# Filters
+if True:
     def apply_filters(df):
         # First and Last Delivery
         mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)

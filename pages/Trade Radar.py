@@ -30,6 +30,8 @@ if True:
     def func_refresh():
         grid_response = None
 
+# Filters
+if True:
     def apply_filters(df):
         # First and Last Delivery
         mask =  (pd.to_datetime(df.leg_1_delivery, dayfirst=True)>=first_delivery)
@@ -46,9 +48,8 @@ if True:
 
         # Asset class
         for sel_asset in sel_asset_classes:
-            # mask = mask & ((df.asset_class_1==sel_asset) | (df.asset_class_2==sel_asset))
-            # print(df.asset_class_2.unique)            
-            mask = mask & ((df.asset_class_1==sel_asset) & (pd.isna(df.asset_class_2))) | ((df.asset_class_1==sel_asset) & (df.asset_class_2==sel_asset))
+            mask = mask & ((df.asset_class_1==sel_asset) | (df.asset_class_2==sel_asset))
+            # mask = mask & ((df.asset_class_1==sel_asset) & (pd.isna(df.asset_class_2))) | ((df.asset_class_1==sel_asset) & (df.asset_class_2==sel_asset)) # This messed up everything
 
         # Selected Legs
         for sel_ticker in sel_tickers:
@@ -168,8 +169,7 @@ if df_full is not None:
         # Trade Entry and Exit
         opt_1=pd.to_datetime(df_full['interval_start'], dayfirst=True)
         opt_2=pd.to_datetime(df_full['interval_end'], dayfirst=True)        
-        options =list(pd.date_range(min(opt_1), max(opt_2)))
-        
+        options =list(pd.date_range(min(opt_1), max(opt_2)))    
         trade_entry_from, trade_entry_to = st.select_slider('Trade Entry', options=options, value=(options[0], options[0]+pd.DateOffset(months=1)), format_func=fu.format_trade_entry)
         trade_exit_from, trade_exit_to = st.select_slider('Trade Exit', options=options, value=(options[0], options[-1]), format_func=fu.format_trade_entry)
 
