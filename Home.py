@@ -78,7 +78,8 @@ if True:
         df_full=st.session_state['df_full']
     else:
         # st.write('Getting data from Google Drive')
-        st.session_state['df_full'] = gd.read_csv('Data/Spreadinator/exported.csv', comment=True)
+        sel_date=dt.today().strftime('%Y-%m-%d')
+        st.session_state['df_full'] = gd.read_csv(f'Data/Spreadinator/spreadinator_{sel_date}.csv', comment=True)
         df_full=st.session_state['df_full']
 
 

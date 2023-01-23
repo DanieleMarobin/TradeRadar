@@ -1,10 +1,13 @@
 
+from datetime import datetime as dt
+
 import streamlit as st
 import GDrive as gd
 import inspect
 import pandas as pd
 import numpy as np
 import plotly.express as px
+
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 
 def get_data():
@@ -18,7 +21,8 @@ def get_data():
         df_full=st.session_state['df_full']
     else:
         st.write('Getting data from Google Drive')
-        st.session_state['df_full'] = gd.read_csv('Data/Spreadinator/exported.csv', comment=True)
+        sel_date=dt.today().strftime('%Y-%m-%d')
+        st.session_state['df_full'] = gd.read_csv(f'Data/Spreadinator/spreadinator_{sel_date}.csv', comment=True)
         df_full=st.session_state['df_full']
     return df_full
 
