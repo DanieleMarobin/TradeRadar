@@ -200,6 +200,7 @@ if True:
                 for n_years in loop_n_years:                                        
                     # Filters
                     table_title=[]
+                    
                     if asset!= '': 
                         sel_asset_classes = [asset]
                         table_title.append(asset.title())

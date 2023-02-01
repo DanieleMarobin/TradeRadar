@@ -97,12 +97,12 @@ def aggrid_table_ranking_page(df,rows_per_page):
     'interval_success_rate',
     'price_percentile',
     'interval_pnl_per_day',
-    # 'interval_pnl_succ_rate_interaction',
-    # 'interval_sign_price_perc_interaction',
-    # 'x',
-    # 'y',
     'indicator',
     'rank',
+    'x',
+    'interval_pnl_succ_rate_interaction',
+    'y',    
+    'interval_sign_price_perc_interaction',
     ]
     hide_cols=list(set(df.columns)-set(visible_cols))
 
