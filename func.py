@@ -93,6 +93,7 @@ def aggrid_table_ranking_page(df,rows_per_page):
     'trade',
     'interval',
     'interval_days',
+    'interval_type',
     'success_str',
     'interval_success_rate',
     'price_percentile',
