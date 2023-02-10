@@ -301,4 +301,4 @@ if df_full is not None:
     fig.update_traces(hovertemplate=hovertemplate, textposition='top center')
     fig.update_layout(width=1500,height=850)
     
-    chart_placeholder.plotly_chart(fig)
+    chart_placeholder.plotly_chart(fig,use_container_width=True)
