@@ -22,7 +22,8 @@ def get_data():
     else:
         st.write('Getting data from Google Drive')
         sel_date=dt.today().strftime('%Y-%m-%d')
-        st.session_state['df_full'] = gd.read_csv(file_path=f'Data/Spreadinator/spreadinator_{sel_date}.csv')
+        # st.session_state['df_full'] = gd.read_csv(file_path=f'Data/Spreadinator/spreadinator_{sel_date}.csv')
+        st.session_state['df_full'] = gd.read_csv(file_path=f'Data/Spreadinator/spreadinator_last_update.csv')
         df_full=st.session_state['df_full']
     return df_full
 
